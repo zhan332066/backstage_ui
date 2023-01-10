@@ -4,28 +4,9 @@ import { login } from '../../features/userSlice'
 import { useState } from 'react'
 import { message } from 'antd'
 import axios from 'axios'
-import { newPermission } from '../api/permission'
+import { genSaltSync, hashSync } from 'bcryptjs'
 
-const getCustomerData = async () => {
-  console.log('come inside')
-  // Load hash from your password DB.
-  const {hash ,salt}= await newPermission('moocelife')
-  // console.log(hashpwd, salt)
-  const data = {}
-  await axios
-    .post('http://127.0.0.1:8080/permission', {
-      account: 'root',
-      pwd: hash,
-      salt: salt,
-      name: '管理者',
-      permission: 'root',
-      status: 1,
-      note: '',
-    })
-    .then((res) => {
-      console.log(res.data)
-    })
-}
+
 const Login = () => {
   const dispatch = useDispatch()
   const [account, setAccount] = useState('')
@@ -38,16 +19,31 @@ const Login = () => {
       message.warning('請輸入資料!')
       return
     }
-    await axios.post('').then((res) => {
-      dispatch(login('abc'))
+    // const salt = genSaltSync(10) 
+    // const hash = hashSync(pwd, salt)
+    await axios.get(`http://127.0.0.1:8080/user/verify?account=${account}&pwd=${pwd}`).then((res) => {
+      // dispatch(login('abc'))
+      console.log(res.data)
     })
   }
-  useEffect(() => {
-    if (account === '') {
-      getCustomerData()
-      setAccount('a')
-    }
-  }, [])
+  const handleNew = async () => { 
+     
+    // const salt = genSaltSync(10) 
+    // const hash = hashSync('testabc', salt)
+    await axios.post('http://127.0.0.1:8080/user',{
+      account:'root',
+      pwd:'moocelife',
+      salt:'',
+      name:'管理員',
+      permission:'root',
+      status:0,
+      note:''
+    }).then((res) => {
+      // dispatch(login('abc'))
+      console.log(res.data)
+    })
+  }
+  
   return (
     <div className="static h-full w-full flex justify-center">
       <img className="absolute  z-0 h-full w-full" src={background_url} />
@@ -80,10 +76,16 @@ const Login = () => {
         </div>
         <div className="w-2/3 flex self-center justify-end  m-2 ">
           <button
-            className="bg-blue-400 p-2 rounded-md text-3xl h-fit "
+            className="bg-blue-400 p-2 rounded-md text-3xl h-fit hover:border-2 border-blue-300  hover:border-white hover:text-white text-blue-300"
             onClick={handleLogin}
           >
             Login
+          </button>
+          <button
+            className="bg-blue-400 p-2 rounded-md text-3xl h-fit hover:border-2 border-blue-300  hover:border-white hover:text-white text-blue-300"
+            onClick={handleNew}
+          >
+            New
           </button>
         </div>
       </div>
